@@ -9,7 +9,7 @@
           <button
             @click="setOperator('/')"
             class="operator"
-            :class="currentOperator === '/' ? 'active' : ''"
+            :class="operator === '/' ? 'active' : ''"
           >
             /
           </button>
@@ -21,7 +21,7 @@
           <button
             @click="setOperator('*')"
             class="operator"
-            :class="currentOperator === '*' ? 'active' : ''"
+            :class="operator === '*' ? 'active' : ''"
           >
             X
           </button>
@@ -33,7 +33,7 @@
           <button
             @click="setOperator('-')"
             class="operator"
-            :class="currentOperator === '-' ? 'active' : ''"
+            :class="operator === '-' ? 'active' : ''"
           >
             -
           </button>
@@ -45,7 +45,7 @@
           <button
             @click="setOperator('+')"
             class="operator"
-            :class="currentOperator === '+' ? 'active' : ''"
+            :class="operator === '+' ? 'active' : ''"
           >
             +
           </button>
@@ -67,8 +67,7 @@ export default {
     return {
       numberOnScreen: "0",
       lastNumberOnScreen: null,
-      currentOperator: null,
-      previousOperator: null,
+      operator: null,
       operatorSelected: false,
     };
   },
@@ -94,32 +93,28 @@ export default {
     reset() {
       this.numberOnScreen = "0";
       this.lastNumberOnScreen = null;
-      this.lastNumberOnScreen = null;
       this.resetOperators();
     },
     resetOperators() {
-      this.currentOperator = null;
-      this.previousOperator = null;
+      this.operator = null;
       this.operatorSelected = false;
     },
     setOperator(operator) {
       this.operatorSelected = true;
-      if (this.currentOperator !== this.previousOperator) {
-        this.previousOperator = this.currentOperator;
-      }
-      this.currentOperator = operator;
-      if (this.lastNumberOnScreen) {
-        this.calculateNumber(this.previousOperator);
-      }
+      this.calculateNumber();
+      this.operator = operator;
     },
     getEqual() {
-      if (this.currentOperator && this.lastNumberOnScreen) {
-        this.calculateNumber(this.currentOperator);
+      if (this.operator && this.lastNumberOnScreen) {
+        this.calculateNumber();
         this.resetOperators();
       }
     },
-    calculateNumber(operator) {
-      switch (operator) {
+    calculateNumber() {
+      if (this.lastNumberOnScreen === null) {
+        return false;
+      }
+      switch (this.operator) {
         case "+":
           this.numberOnScreen =
             parseFloat(this.lastNumberOnScreen) +
