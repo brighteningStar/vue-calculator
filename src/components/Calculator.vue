@@ -5,7 +5,13 @@
       <div class="cal-keys">
         <div class="top-keys">
           <button @click="reset()" class="start-zero">AC</button>
-          <button class="placeholder" disabled>BIG ADD</button>
+          <button
+            @click="isBigAddActive = !isBigAddActive"
+            class="placeholder"
+            :class="isBigAddActive === true ? 'active' : ''"
+          >
+            BIG ADD
+          </button>
           <button
             @click="setOperator('/')"
             class="operator"
@@ -69,11 +75,46 @@ export default {
       lastNumberOnScreen: null,
       operator: null,
       operatorSelected: false,
+      isBigAddActive: false,
+      bigAdd: [],
+      number: null,
     };
   },
-
   methods: {
     setNumber(number) {
+      if (this.isBigAddActive === true) {
+        this.setBigAddNumber(number);
+      } else {
+        this.setNormal(number);
+      }
+    },
+    setOperator(operator) {
+      if (this.isBigAddActive === true) {
+        this.setBigAddOperator(operator);
+      } else {
+        this.setNormalOperator(operator);
+      }
+    },
+    getEqual() {
+      if (this.isBigAddActive === true) {
+        this.getBigAddEqual();
+      } else {
+        this.getNormalEqual();
+      }
+    },
+    getResult(first, op, second) {
+      switch (op) {
+        case "+":
+          return parseFloat(first) + parseFloat(second);
+        case "-":
+          return parseFloat(first) - parseFloat(second);
+        case "*":
+          return parseFloat(first) * parseFloat(second);
+        default:
+          return parseFloat(first) / parseFloat(second);
+      }
+    },
+    setNormal(number) {
       if (
         this.numberOnScreen.includes(".") &&
         number === "." &&
@@ -90,25 +131,48 @@ export default {
         ? (this.numberOnScreen = number)
         : (this.numberOnScreen += number);
     },
-    reset() {
-      this.numberOnScreen = "0";
-      this.lastNumberOnScreen = null;
-      this.resetOperators();
+    setBigAddNumber(number) {
+      if (this.number && this.number.includes(".") && number === ".") {
+        return false;
+      }
+      if (this.number === null) {
+        this.number = number;
+      } else {
+        this.number += number;
+      }
+      if (this.numberOnScreen === "0") {
+        this.numberOnScreen = number;
+      } else {
+        this.numberOnScreen += number;
+      }
     },
-    resetOperators() {
-      this.operator = null;
-      this.operatorSelected = false;
-    },
-    setOperator(operator) {
+    setNormalOperator(operator) {
       this.operatorSelected = true;
       this.calculateNumber();
       this.operator = operator;
     },
-    getEqual() {
-      if (this.operator && this.lastNumberOnScreen) {
-        this.calculateNumber();
-        this.resetOperators();
+    setBigAddOperator(operator) {
+      this.operatorSelected = true;
+      this.numberOnScreen += operator;
+      if (this.number) {
+        this.bigAdd.push(this.number, operator);
+      } else {
+        this.bigAdd.push(operator);
       }
+      this.number = null;
+    },
+    getBigAddEqual() {
+      this.bigAdd.push(this.number);
+      const index = 0;
+      while (this.bigAdd[index + 1] !== undefined) {
+        const first = this.bigAdd.shift();
+        const op = this.bigAdd.shift();
+        const second = this.bigAdd.shift();
+        const result = this.getResult(first, op, second);
+        this.bigAdd.splice(0, 0, result.toString());
+      }
+      this.numberOnScreen = this.bigAdd[0].toString();
+      this.number = null;
     },
     calculateNumber() {
       if (this.lastNumberOnScreen === null) {
@@ -120,19 +184,16 @@ export default {
             parseFloat(this.lastNumberOnScreen) +
             parseFloat(this.numberOnScreen);
           break;
-
         case "-":
           this.numberOnScreen =
             parseFloat(this.lastNumberOnScreen) -
             parseFloat(this.numberOnScreen);
           break;
-
         case "*":
           this.numberOnScreen =
             parseFloat(this.lastNumberOnScreen) *
             parseFloat(this.numberOnScreen);
           break;
-
         case "/":
           this.numberOnScreen =
             parseFloat(this.lastNumberOnScreen) /
@@ -144,9 +205,24 @@ export default {
       this.numberOnScreen = this.roundNumber().toString();
       this.lastNumberOnScreen = null;
     },
+    getNormalEqual() {
+      if (this.operator && this.lastNumberOnScreen) {
+        this.calculateNumber();
+        this.resetOperators();
+      }
+    },
     roundNumber() {
       const num = Number((Math.abs(this.numberOnScreen) * 100).toPrecision(15));
       return (Math.round(num) / 100) * Math.sign(this.numberOnScreen);
+    },
+    reset() {
+      this.numberOnScreen = "0";
+      this.lastNumberOnScreen = null;
+      this.resetOperators();
+    },
+    resetOperators() {
+      this.operator = null;
+      this.operatorSelected = false;
     },
   },
 };
