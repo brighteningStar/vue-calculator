@@ -102,18 +102,6 @@ export default {
         this.getNormalEqual();
       }
     },
-    getResult(first, op, second) {
-      switch (op) {
-        case "+":
-          return parseFloat(first) + parseFloat(second);
-        case "-":
-          return parseFloat(first) - parseFloat(second);
-        case "*":
-          return parseFloat(first) * parseFloat(second);
-        default:
-          return parseFloat(first) / parseFloat(second);
-      }
-    },
     setNormal(number) {
       if (
         this.numberOnScreen.includes(".") &&
@@ -147,7 +135,15 @@ export default {
     },
     setNormalOperator(operator) {
       this.operatorSelected = true;
-      this.calculateNumber();
+      if (this.lastNumberOnScreen) {
+        this.numberOnScreen = this.getResult(
+          this.lastNumberOnScreen,
+          this.operator,
+          this.numberOnScreen
+        );
+        this.numberOnScreen = this.roundNumber().toString();
+        this.lastNumberOnScreen = null;
+      }
       this.operator = operator;
     },
     setBigAddOperator(operator) {
@@ -173,40 +169,27 @@ export default {
       this.numberOnScreen = this.bigAdd[0].toString();
       this.number = null;
     },
-    calculateNumber() {
-      if (this.lastNumberOnScreen === null) {
-        return false;
-      }
-      switch (this.operator) {
+    getResult(first, op, second) {
+      switch (op) {
         case "+":
-          this.numberOnScreen =
-            parseFloat(this.lastNumberOnScreen) +
-            parseFloat(this.numberOnScreen);
-          break;
+          return parseFloat(first) + parseFloat(second);
         case "-":
-          this.numberOnScreen =
-            parseFloat(this.lastNumberOnScreen) -
-            parseFloat(this.numberOnScreen);
-          break;
+          return parseFloat(first) - parseFloat(second);
         case "*":
-          this.numberOnScreen =
-            parseFloat(this.lastNumberOnScreen) *
-            parseFloat(this.numberOnScreen);
-          break;
-        case "/":
-          this.numberOnScreen =
-            parseFloat(this.lastNumberOnScreen) /
-            parseFloat(this.numberOnScreen);
-          break;
+          return parseFloat(first) * parseFloat(second);
         default:
-          this.numberOnScreen = "0";
+          return parseFloat(first) / parseFloat(second);
       }
-      this.numberOnScreen = this.roundNumber().toString();
-      this.lastNumberOnScreen = null;
     },
     getNormalEqual() {
       if (this.operator && this.lastNumberOnScreen) {
-        this.calculateNumber();
+        this.numberOnScreen = this.getResult(
+          this.lastNumberOnScreen,
+          this.operator,
+          this.numberOnScreen
+        );
+        this.numberOnScreen = this.roundNumber().toString();
+        this.lastNumberOnScreen = null;
         this.resetOperators();
       }
     },
