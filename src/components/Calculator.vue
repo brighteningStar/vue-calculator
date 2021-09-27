@@ -6,7 +6,7 @@
         <div class="top-keys">
           <button @click="reset()" class="start-zero">AC</button>
           <button
-            @click="isBigAddActive = !isBigAddActive"
+            @click="setUnsetBigAdd()"
             class="placeholder"
             :class="isBigAddActive === true ? 'active' : ''"
           >
@@ -81,6 +81,10 @@ export default {
     };
   },
   methods: {
+    setUnsetBigAdd() {
+      this.isBigAddActive = !this.isBigAddActive;
+      this.reset();
+    },
     setNumber(number) {
       if (this.isBigAddActive === true) {
         this.setBigAddNumber(number);
@@ -200,6 +204,7 @@ export default {
     reset() {
       this.numberOnScreen = "0";
       this.lastNumberOnScreen = null;
+      this.bigAdd = [];
       this.resetOperators();
     },
     resetOperators() {
