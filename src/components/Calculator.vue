@@ -127,9 +127,7 @@ export default {
         this.numberOnScreen = "0";
         this.operatorSelected = false;
       }
-      this.numberOnScreen === "0"
-        ? (this.numberOnScreen = number)
-        : (this.numberOnScreen += number);
+      this.setUpNumberOnScreen(number);
     },
     setBigAddNumber(number) {
       if (this.number && this.number.includes(".") && number === ".") {
@@ -140,11 +138,12 @@ export default {
       } else {
         this.number += number;
       }
-      if (this.numberOnScreen === "0") {
-        this.numberOnScreen = number;
-      } else {
-        this.numberOnScreen += number;
-      }
+      this.setUpNumberOnScreen(number);
+    },
+    setUpNumberOnScreen(number) {
+      this.numberOnScreen === "0"
+        ? (this.numberOnScreen = number)
+        : (this.numberOnScreen += number);
     },
     setNormalOperator(operator) {
       this.operatorSelected = true;
